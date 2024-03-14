@@ -20,7 +20,8 @@ function valueHasOp(text) {
       text[i] === "+" ||
       text[i] === "-" ||
       text[i] === "*" ||
-      text[i] === "/" 
+      text[i] === "/" ||
+      text[i] === "%"
     ) {
       return true;
     }
@@ -45,15 +46,8 @@ export default function App() {
       try {
         prevAns = Function(`return ${calValue}`)();
       } catch (error) {
-        console.error('Erro ao calcular o resultado:', error);
-        return;
+        prevAns = "Error";
       }
-
-      if (prevAns === Infinity || prevAns === -Infinity || isNaN(prevAns)) {
-        console.error('Divisão por zero ou resultado não numérico.');
-        return;
-      }
-
       setPreviewValue(`${prevAns}`);
     } else {
       setPreviewValue(``);
@@ -62,12 +56,20 @@ export default function App() {
 
   const handleBackSpace = () => {
     const remainValue = calValue.slice(0, calValue.length - 1);
-    setCalValue(() => remainValue);
+    setCalValue(remainValue);
   };
 
   const handlePress = (text) => {
     setIsAnswer(false);
-    const corrText = text === "X" ? "*" : text === "+/-" ? "-" : text;
+    let corrText = text;
+
+    if (text === "X") {
+      corrText = "*";
+    } else if (text === "+/-") {
+      corrText = "-";
+    } else if (text === "%") {
+      corrText = "/100*";
+    }
 
     setCursorSel({ end: cursorSel.end + 1, start: cursorSel.start + 1 });
     setCalValue((prev) => {
@@ -86,22 +88,8 @@ export default function App() {
   };
 
   const handleEqual = () => {
-    if (!previewValue) return;
-
-    let result;
-    try {
-      result = Function(`return ${previewValue}`)();
-    } catch (error) {
-      console.error('Erro ao calcular o resultado:', error);
-      return;
-    }
-
-    if (result === Infinity || result === -Infinity || isNaN(result)) {
-      console.error('Divisão por zero ou resultado não numérico.');
-      return;
-    }
-
-    setCalValue(result.toString());
+    if (!previewValue || previewValue === "Error") return;
+    setCalValue(previewValue);
     setPreviewValue("");
     setIsAnswer(true);
     setCursorSel({ end: previewValue.length, start: previewValue.length });
@@ -114,9 +102,9 @@ export default function App() {
         value={calValue}
         onChangeText={setCalValue}
         selection={cursorSel}
-        cursorColor='#8ad8d1'
+        cursorColor="#8ad8d1"
         autoFocus={true}
-        textAlign='right'
+        textAlign="right"
         onSelectionChange={(e) => {
           setIsCursorSel(true);
           setCursorSel(e.nativeEvent.selection);
@@ -126,8 +114,8 @@ export default function App() {
       <TextInput
         value={previewValue}
         onChangeText={setPreviewValue}
-        cursorColor='#8ad8d1'
-        textAlign='right'
+        cursorColor="#8ad8d1"
+        textAlign="right"
         caretHidden={true}
         showSoftInputOnFocus={false}
         style={[styles.input, styles.prevInput]}
@@ -138,6 +126,11 @@ export default function App() {
           onPress={() => handleBackSpace()}
           disabled={calValue ? false : true}
         >
+          <Ionicons
+            name="md-arrow-back"
+            size={24}
+            color={calValue ? "green" : "#035903"}
+          />
         </Pressable>
       </View>
 
@@ -151,12 +144,12 @@ export default function App() {
 
       <View style={styles.buttonContainer}>
         <Row>
-          <Button handlePress={handleClear} label={"C"} type='clear' />
+          <Button handlePress={handleClear} label={"C"} type="clear" />
           <Button
             handlePress={handlePress}
             label={"/"}
-            type='operator'
-            icon={<FontAwesome5 name='divide' size={24} color='green' />}
+            type="operator"
+            icon={<FontAwesome5 name="divide" size={24} color="green" />}
           />
         </Row>
         <Row>
@@ -166,8 +159,8 @@ export default function App() {
           <Button
             handlePress={handlePress}
             label={"X"}
-            type='operator'
-            icon={<FontAwesome5 name='times' size={24} color='green' />}
+            type="operator"
+            icon={<FontAwesome5 name="times" size={24} color="green" />}
           />
         </Row>
         <Row>
@@ -177,8 +170,8 @@ export default function App() {
           <Button
             handlePress={handlePress}
             label={"-"}
-            type='operator'
-            icon={<FontAwesome name='minus' size={24} color='green' />}
+            type="operator"
+            icon={<FontAwesome name="minus" size={24} color="green" />}
           />
         </Row>
         <Row>
@@ -188,8 +181,8 @@ export default function App() {
           <Button
             handlePress={handlePress}
             label={"+"}
-            type='operator'
-            icon={<FontAwesome5 name='plus' size={24} color='green' />}
+            type="operator"
+            icon={<FontAwesome5 name="plus" size={24} color="green" />}
           />
         </Row>
         <Row>
@@ -199,13 +192,13 @@ export default function App() {
           <Button
             handlePress={handleEqual}
             label={"="}
-            type='equal'
-            icon={<FontAwesome5 name='equals' size={24} color='white' />}
+            type="equal"
+            icon={<FontAwesome5 name="equals" size={24} color="white" />}
           />
         </Row>
       </View>
 
-      <StatusBar style='auto' />
+      <StatusBar style="auto" />
     </View>
   );
 }
@@ -247,3 +240,4 @@ const styles = StyleSheet.create({
     flex: 4,
   },
 });
+
