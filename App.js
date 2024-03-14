@@ -11,7 +11,7 @@ function valueHasOp(text) {
     text[text.length - 1] === "+" ||
     text[text.length - 1] === "-" ||
     text[text.length - 1] === "*" ||
-    text[text.length - 1] === "/" ||
+    text[text.length - 1] === "/"
   )
     return false;
 
@@ -152,19 +152,6 @@ export default function App() {
       <View style={styles.buttonContainer}>
         <Row>
           <Button handlePress={handleClear} label={"C"} type='clear' />
-          <Button
-            handlePress={handlePress}
-            label={"()"}
-            type='operator'
-            icon={
-              <MaterialCommunityIcons
-                name='code-parentheses'
-                size={30}
-                color='green'
-                style={{ fontWeight: "bold" }}
-              />
-            }
-          />
           <Button
             handlePress={handlePress}
             label={"/"}
